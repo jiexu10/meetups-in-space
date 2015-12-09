@@ -1,0 +1,13 @@
+new meetup page
+
+<form method="post" action="/meetups/new" id="meetups-new-form">
+  <label for="add-name">Name</label>
+  <input type="text" name="name" id="add-name" value="<%= @name %>">
+  <label for="location">Location</label>
+  <input type="text" name="location" id="location" value="<%= @location %>">
+  <label for="description">Description</label>
+  <input type="text" name="description" id="description" value="<%= @description %>">
+  <input type="submit" value="Add">
+</form>
+
+javascript

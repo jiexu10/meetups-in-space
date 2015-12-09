@@ -1,0 +1,16 @@
+<h1>Meetups</h1>
+
+List of Meetups
+Alphabetical
+
+<ul class="meetup-list">
+  <% @meetups.each do |meetup| %>
+    <li><a href="/meetup/<%= meetup.id %>"><%= meetup.name %></a></li>
+    <%= meetup.description %>, <%= meetup.location %>, <%= User.find(meetup.creator_id).username %>
+  <% end %>
+</ul>
+<% if @signed_in %>
+  <a href="/meetups/new" id='new-meetup'>Add New Meetup</a>
+<% else %>
+  Please sign in to add new meetups!
+<% end %>

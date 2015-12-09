@@ -1,0 +1,51 @@
+Meetup show page
+
+name: <%= @meetup.name %>
+description: <%= @meetup.description %>
+location: <%= @meetup.location %>
+creator: <%= User.find(@meetup.creator_id).username %>
+
+<hr>
+
+List of Members
+<ul class="member-list">
+  <% @meetup.users.each do |user| %>
+    <li><%= user.avatar_url %> - <%= user.username %></li>
+  <% end %>
+</ul>
+
+<hr>
+<% if @signed_in && @creator %>
+  <form method="get" action="/meetups/edit/<%= @meetup.id %>" id="edit-button">
+    <input type="submit" value="Edit Meetup">
+  </form>
+
+  <form action="/meetup/<%= @meetup.id %>" method="post" id="delete-button">
+    <input type="hidden" name="_method" value="DELETE"</input>
+    <input type="submit" value="Delete Meetup"></input>
+  </form>
+<% else %>
+  You can't edit this meetup!
+<% end %>
+
+edit page link if creator
+delete page link if creator
+
+<% if @member %>
+  <form method="post" action="/meetup/leave/<%= @meetup.id %>" id="leave-button">
+    <input type="submit" value="Leave Meetup">
+  </form>
+<% else %>
+  <form method="post" action="/meetup/join/<%= @meetup.id %>" id="join-button">
+    <input type="submit" value="Join Meetup">
+  </form>
+<% end %>
+
+comments
+post comment form
+
+<form method="post" action="/comments" id="comment-form">
+  <label for="comment-body">Comment</label>
+  <input type="text" name="comment-body" id="comment-body">
+  <input type="submit" value="Submit">
+</form>
