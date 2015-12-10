@@ -5,62 +5,50 @@
 require "spec_helper"
 
 feature "edit a meetup" do
-  include Seeder
 
+  let(:user) { FactoryGirl.create(:user) }
+  let!(:meetup) { FactoryGirl.create(:meetup) }
   scenario "user is not signed in" do
-    seed_db
-
     visit "/meetups"
-    click_link("coolthing")
+    click_link(meetup.name)
 
-    expect(current_path).to eq('/meetup/1')
+    expect(current_path).to eq("/meetup/#{meetup.id}")
     expect(page).to_not have_css('form#delete-button')
     expect(page).to have_content("You can't edit this meetup!")
   end
 
   scenario "user is not the creator" do
-    seed_db
-    test_user = User.find(4)
-
     visit "/meetups"
-    sign_in_as(test_user)
-    click_link("coolthing")
+    sign_in_as(user)
+    click_link(meetup.name)
 
-    expect(page).to have_content("coolthing")
-    expect(page).to have_content("description: fun")
-    expect(page).to have_content("location: somewhere")
-    expect(page).to have_content("creator: testusername")
+    expect(page).to have_content(meetup.name)
+    expect(page).to have_content("description: #{meetup.description}")
+    expect(page).to have_content("location: #{meetup.location}")
+    expect(page).to have_content("creator: #{meetup.creator.username}")
 
-    expect(current_path).to eq('/meetup/1')
+    expect(current_path).to eq("/meetup/#{meetup.id}")
     expect(page).to_not have_css('form#delete-button')
     expect(page).to have_content("You can't edit this meetup!")
   end
 
   scenario "user deletes the meetup" do
-    seed_db
-    test_user = User.find(1)
-
     visit "/meetups"
-    sign_in_as(test_user)
-    click_link("coolthing")
+    sign_in_as(meetup.creator)
+    click_link(meetup.name)
 
-    expect(page).to have_content("coolthing")
-    expect(page).to have_content("description: fun")
-    expect(page).to have_content("location: somewhere")
-    expect(page).to have_content("creator: testusername")
+    expect(page).to have_content(meetup.name)
+    expect(page).to have_content("description: #{meetup.description}")
+    expect(page).to have_content("location: #{meetup.location}")
+    expect(page).to have_content("creator: #{meetup.creator.username}")
 
-    expect(current_path).to eq('/meetup/1')
+    expect(current_path).to eq("/meetup/#{meetup.id}")
     click_button('Delete Meetup')
 
     expect(current_path).to eq('/meetups')
-    expect(page).to_not have_content("coolthing")
-    expect(page).to_not have_content("description: fun")
-    expect(page).to_not have_content("location: somewhere")
-    expect(page).to_not have_content("creator: testusername")
-
-    expect(page).to have_selector("ul.meetup-list li:nth-child(1)", text: "otherthing")
-    expect(page).to have_selector("ul.meetup-list li:nth-child(2)", text: "test3")
-    expect(page).to have_selector("ul.meetup-list li:nth-child(3)", text: "test4")
-    expect(page).to have_selector("ul.meetup-list li:nth-child(4)", text: "test5")
+    expect(page).to_not have_content(meetup.name)
+    expect(page).to_not have_content("description: #{meetup.description}")
+    expect(page).to_not have_content("location: #{meetup.location}")
+    expect(page).to_not have_content("creator: #{meetup.creator.username}")
   end
 end

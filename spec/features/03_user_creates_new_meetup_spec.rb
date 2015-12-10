@@ -19,7 +19,7 @@ feature "user creates new meetup" do
     fill_in('Description', with: 'newdescription')
     click_button('Add')
 
-    expect(current_path).to eq('/meetup/2')
+    expect(current_path).to eq("/meetup/#{meetup.id + 1}")
     expect(page).to have_content('newmeetup')
     expect(page).to have_content('newlocation')
     expect(page).to have_content('newdescription')

@@ -5,35 +5,36 @@
 require "spec_helper"
 
 feature "join a meetup" do
-  include Seeder
 
-  scenario "user joins and leaves the page" do
-    seed_db
-    test_user = User.find(4)
-
+  let!(:user) { FactoryGirl.create(:user) }
+  let(:meetup) { FactoryGirl.create(:meetup) }
+  let!(:memberships) { FactoryGirl.create_list(:membership, 4, meetup: meetup) }
+  scenario "user joins the meetup" do
     visit "/meetups"
-    sign_in_as(test_user)
-    click_link("coolthing")
+    sign_in_as(user)
+    click_link(meetup.name)
 
-    expect(current_path).to eq('/meetup/1')
+    expect(current_path).to eq("/meetup/#{meetup.id}")
     click_button("Join Meetup")
 
-    expect(current_path).to eq('/meetup/join/1')
-    expect(page).to have_selector("ul.member-list li", text: "testusername")
-    expect(page).to have_selector("ul.member-list li", text: "testav_url")
-    expect(page).to have_selector("ul.member-list li", text: "testusername2")
-    expect(page).to have_selector("ul.member-list li", text: "testav_url2")
-    expect(page).to have_selector("ul.member-list li", text: "testusername3")
-    expect(page).to have_selector("ul.member-list li", text: "testav_url3")
-    expect(page).to have_selector("ul.member-list li", text: "thisguycreates")
-    expect(page).to have_selector("ul.member-list li", text: "creator_url")
+    expect(current_path).to eq("/meetup/join/#{meetup.id}")
+    within(".member-list") do
+      memberships.each do |membership|
+        expect(page).to have_content(membership.user.username)
+        expect(page).to have_content(membership.user.avatar_url)
+      end
+      expect(page).to have_content(user.username)
+      expect(page).to have_content(user.avatar_url)
+    end
+  end
 
-    click_button("Leave Meetup")
-    expect(page).to have_selector("ul.member-list li", text: "testusername")
-    expect(page).to have_selector("ul.member-list li", text: "testav_url")
-    expect(page).to have_selector("ul.member-list li", text: "testusername2")
-    expect(page).to have_selector("ul.member-list li", text: "testav_url2")
-    expect(page).to have_selector("ul.member-list li", text: "testusername3")
-    expect(page).to have_selector("ul.member-list li", text: "testav_url3")
+  scenario "user is already a member" do
+    visit "/meetups"
+    sign_in_as(memberships.first.user)
+    click_link(meetup.name)
+
+    expect(current_path).to eq("/meetup/#{meetup.id}")
+    expect(page).to_not have_css("#join-button")
+    expect(page).to have_css("#leave-button")
   end
 end
